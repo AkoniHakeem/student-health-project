@@ -1,0 +1,32 @@
+# Node.js dependencies
+**/node_modules/
+
+# Build output
+**/dist/
+
+# Environment variables
+**/.env
+
+# Logs
+*.log
+logs/
+**/logs/
+
+# IDE/Editor settings
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# TypeScript build artifacts
+*.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.temp
+
+# Frontend dependencies and build output
+**/health-project-ui/node_modules/
+**/health-project-ui/dist/
