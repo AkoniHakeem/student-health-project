@@ -13,7 +13,7 @@ export class JwtService {
   }
 
   sign(user: Pick<User, 'id' | 'role'>) {
-    const payload = { sub: user.id, role: user.role };
+    const payload = { sub: String(user.id), role: user.role }; // Ensure `sub` is a string
     return jwt.sign(payload, this.jwtSecret, { expiresIn: this.expiresIn });
   }
 

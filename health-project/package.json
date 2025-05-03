@@ -8,7 +8,8 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main"
+    "start:prod": "node dist/main",
+    "seed": "ts-node -r tsconfig-paths/register src/seeds/**.seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
@@ -23,6 +24,7 @@
     "class-validator": "^0.14.1",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.6.1",
+    "openai": "^4.96.2",
     "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",

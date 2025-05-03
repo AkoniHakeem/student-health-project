@@ -14,6 +14,7 @@ import { UserRole } from '../../lib/types';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { DashboardDto, DashboardAppointmentsDto, VisitHistoryDto } from './dto/dashboard.dto';
+import { sanitizeObject } from 'src/lib/utils';
 
 export type AppointmentStatus = 'pending' | 'approved' | 'rescheduled' | 'cancelled';
 
@@ -76,7 +77,7 @@ export class AppointmentsService {
    * Get appointments. Students -> their own, Staff -> assigned, Admin -> all.
    * Optional filters & pagination supported.
    */
-  async findAll(user: User, page = 1, perPage = 20) {
+  async findAll(user: User & {sub: string}, page = 1, perPage = 20) {
     const qb = this.appointmentRepo
       .createQueryBuilder('appointment')
       .leftJoinAndSelect('appointment.student', 'student')
@@ -86,13 +87,20 @@ export class AppointmentsService {
       .take(perPage);
 
     if (user.role === UserRole.STUDENT) {
-      qb.where('student.id = :studentId', { studentId: user.id });
+      qb.where('student.id = :studentId', { studentId: user.sub });
     } else if (user.role === UserRole.CLINIC_STAFF) {
-      qb.where('staff.id = :staffId', { staffId: user.id });
+      qb.where('staff.id = :staffId', { staffId: user.sub });
     }
     // admins see all
 
     const [items, total] = await qb.getManyAndCount();
+    items.forEach(item => {
+      item.staff.passwordHash = undefined; // Remove sensitive data
+      item.student.passwordHash = undefined; // Remove sensitive data
+      // remove timezone info from date
+      item.date = DateTime.fromJSDate(item.date, { zone: 'utc' }).toFormat('yyyy-MM-dd HH:mm:ss') as unknown as Date;
+      console.log(item.date);
+    });
     return { items, total, page, perPage };
   }
 
@@ -253,5 +261,18 @@ export class AppointmentsService {
       appointments: appointmentsStats,
       visitHistory: history,
     };
+  }
+
+  // Find all users that are staffs
+  async findAllStaff() {
+    let availableStaffs = await this.userRepo.find({
+      where: {
+        role: In(['clinic_staff']),
+      },
+      select: ['id', 'firstName', 'lastName', 'email'],
+    });
+
+    availableStaffs = sanitizeObject(availableStaffs, ['passwordHash']);
+    return availableStaffs;
   }
 }

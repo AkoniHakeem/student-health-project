@@ -182,8 +182,9 @@ async function handleSubmit() {
       email: form.value.email,
       password: form.value.password,
     });
-  } catch {
+  } catch (error) {
     // error surfaced via authStore.error
+    console.error('Signup error:', error);
   }
 }
 </script>

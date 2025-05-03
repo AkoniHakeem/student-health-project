@@ -15,7 +15,8 @@ import { ROLES_KEY } from '../decorators/roles.decorators';
       const required = this.reflector.get<UserRole[]>(ROLES_KEY, ctx.getHandler());
       if (!required) return true;
   
-      const { user } = ctx.switchToHttp().getRequest();
+      const req = ctx.switchToHttp().getRequest();
+      const user = req.user;
       if (!user || !required.includes(user.role)) {
         throw new ForbiddenException('Insufficient permissions');
       }

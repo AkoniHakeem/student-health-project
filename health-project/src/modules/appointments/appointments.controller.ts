@@ -57,6 +57,22 @@ export class AppointmentsController {
     return this.svc.findAll(req.user, page, perPage);
   }
 
+    /** Student dashboard data */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.STUDENT)
+  @Get('dashboard')
+  async dashboard(@Request() req) {
+    const student = await this.usersService.findOne(req.user.sub); // Fetch the student object
+    return this.svc.getDashboard(student); // Call the service method
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.STUDENT)
+  @Get('/staffs')
+  async getAllClinicStaff() {
+    return this.svc.findAllStaff();
+  }
+
   // Get one appointment by ID
   @UseGuards(JwtAuthGuard)
   @Get(':id')
@@ -99,14 +115,5 @@ export class AppointmentsController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.svc.approve(id);
-  }
-
-  /** Student dashboard data */
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STUDENT)
-  @Get('dashboard')
-  async dashboard(@Request() req): Promise<DashboardDto> {
-    const student = await this.usersService.findOne(req.user.sub); // Fetch the student object
-    return this.svc.getDashboard(student); // Call the service method
   }
 }

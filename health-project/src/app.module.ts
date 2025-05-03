@@ -10,6 +10,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { HealthRecordModule } from './modules/health-record/health-record.module';
 import { HealthRecordEntry } from './entities/health-record-entry.entity';
+import { SymptomLogsModule } from './modules/system-logs/system-logs.module';
 
 @Module({
   imports: [
@@ -28,11 +29,14 @@ import { HealthRecordEntry } from './entities/health-record-entry.entity';
         database: configService.get<string>('DB_NAME'),
         entities: [User, HealthRecord, Appointment, SymptomLog, StaffAssignment, HealthRecordEntry],
         synchronize: true,
+        logging: 'all',
+        logger: 'file',
       }),
     }),
     UsersModule,
     AppointmentsModule,
     HealthRecordModule,
+    SymptomLogsModule,
   ],
 })
 export class AppModule {}

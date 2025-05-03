@@ -6,10 +6,18 @@ import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Enable CORS to allow requests from any origin
+  app.enableCors({
+    origin: '*', // Allow requests from any origin
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
+    allowedHeaders: 'Content-Type, Accept, Authorization', // Allowed headers
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,           // strips unknown fields
-      forbidNonWhitelisted: true,
+      // forbidNonWhitelisted: true,
       transform: true,           // converts payloads to DTO instances
     }),
   );

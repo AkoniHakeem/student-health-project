@@ -14,6 +14,14 @@ export class HealthRecordEntry {
   @PrimaryGeneratedColumn()
   id: number;
 
+
+  @Column('text')
+  note: string; // Clinical note, vitals, etc.
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+
   @ManyToOne(() => HealthRecord, healthRecord => healthRecord.entries, { onDelete: 'CASCADE' })
   healthRecord: HealthRecord;
 
@@ -22,10 +30,4 @@ export class HealthRecordEntry {
 
   @ManyToOne(() => User, user => user.authoredEntries)
   author: User; // Clinic staff who authored the entry
-
-  @Column('text')
-  note: string; // Clinical note, vitals, etc.
-
-  @CreateDateColumn()
-  createdAt: Date;
 }

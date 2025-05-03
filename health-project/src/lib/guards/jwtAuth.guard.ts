@@ -12,6 +12,7 @@ import { JwtService } from 'src/modules/users/jwt.service';
   
     canActivate(ctx: ExecutionContext): boolean {
       const req = ctx.switchToHttp().getRequest();
+      console.log(req.url)
       const auth = req.headers.authorization;
   
       if (!auth) throw new UnauthorizedException('Missing Authorization header');

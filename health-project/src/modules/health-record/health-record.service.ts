@@ -35,17 +35,48 @@ export class HealthRecordService {
     return this.entryRepo.save(entry);
   }
 
-  async getEntriesByStudent(studentId: number): Promise<HealthRecordEntry[]> {
+  /**
+   * Option 1: Add `healthRecord` and its child relations.
+   */
+  async getEntriesByStudentWithHealthRecord(studentId: number): Promise<HealthRecordEntry[]> {
     return this.entryRepo.find({
-      where: { healthRecord: { student: { id: studentId } } },
-      relations: ['appointment', 'author'],
+      where: {
+        healthRecord: { student: { id: studentId } },
+      },
+      relations: [
+        'appointment',
+        'author',
+        'healthRecord',
+        'healthRecord.student', // Join the student under healthRecord
+      ],
     });
   }
 
-  async getEntriesByAppointment(appointmentId: number): Promise<HealthRecordEntry[]> {
+  /**
+   * Option 2: Filter by `appointment.student` relation.
+   */
+  async getEntriesByStudent(studentId: number): Promise<HealthRecordEntry[]> {
     return this.entryRepo.find({
+      where: {
+        appointment: { student: { id: studentId } },
+      },
+      relations: [
+        'appointment',
+        'appointment.student', // Ensure the student is joined
+        'author',
+      ],
+    });
+  }
+
+  async getEntriesByAppointment(appointmentId: number): Promise<HealthRecordEntry> {
+    const record = await this.entryRepo.findOne({
       where: { appointment: { id: appointmentId } },
       relations: ['author'],
     });
+
+    if (record) {
+      record.author.passwordHash = undefined; // Remove sensitive data
+    }
+    return record;
   }
 }

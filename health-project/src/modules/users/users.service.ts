@@ -86,7 +86,7 @@ export class UsersService {
   async findOne(id: number): Promise<User> {
     const user = await this.usersRepo.findOne({ where: { id }, relations: ['healthRecord'] });
     if (!user) throw new NotFoundException('User not found');
-    return user;
+    return {...user, passwordHash: undefined};
   }
 
   async findByEmail(email: string): Promise<User> {

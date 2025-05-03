@@ -18,7 +18,9 @@ export const useAuthStore = defineStore('auth', () => {
   const router = useRouter();
 
   const token = ref<string | null>(localStorage.getItem('token'));
-  const user = ref<User | null>(null);
+  const user = ref<User | null>(
+    localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null,
+  );
   const loading = ref(false);
   const error = ref<string | null>(null);
 
@@ -30,10 +32,16 @@ export const useAuthStore = defineStore('auth', () => {
     api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
   }
 
+  function setUser(newUser: User) {
+    user.value = newUser;
+    localStorage.setItem('user', JSON.stringify(newUser));
+  }
+
   function clearSession() {
     token.value = null;
     user.value = null;
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     delete api.defaults.headers.common['Authorization'];
   }
 
@@ -42,7 +50,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (!token.value) return;
       api.defaults.headers.common['Authorization'] = `Bearer ${token.value}`;
       const res = await api.get(apiRoutes.auth.me);
-      user.value = res.data;
+      setUser(res.data);
     } catch {
       clearSession();
       throw new Error('Session expired or user fetch failed.');
@@ -54,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null;
     try {
       const res = await api.post(apiRoutes.auth.login, { email, password });
-      setToken(res.data.token);
+      setToken(res.data.accessToken);
       await loadUser();
       await router.push('/student/dashboard');
     } catch (err) {
@@ -76,12 +84,12 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true;
     error.value = null;
     try {
-      await api.post(apiRoutes.auth.register, data);
+      await api.post(apiRoutes.auth.register, { ...data, role: 'student' });
       await login(data.email, data.password);
     } catch (err) {
       error.value =
         (err as { response: { data: { message: string } } })?.response?.data?.message ||
-        'Login failed';
+        'Sign up failed';
       throw err;
     } finally {
       loading.value = false;
@@ -90,7 +98,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout() {
     clearSession();
-    await router.push('/login');
+    await router.replace('/login');
   }
 
   return {
@@ -103,5 +111,6 @@ export const useAuthStore = defineStore('auth', () => {
     signup,
     logout,
     loadUser,
+    clearSession,
   };
 });
