@@ -77,8 +77,8 @@
             <q-icon name="person" class="text-white" />
           </q-item-section>
           <q-item-section v-if="!isMini">Profile</q-item-section>
-        </q-item>
-      </q-list> -->
+        </q-item>-->
+      </q-list>
 
       <!-- Logout at bottom -->
       <div class="absolute-bottom q-pa-md">
